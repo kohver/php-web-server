@@ -1,30 +1,33 @@
 #!/bin/sh
 
+# Shell script for quick installation
+# nginx+php+mysql+phpmyadmin web server on Debian 6.
+
 ROOT_DIR='/var/www'
+LOGS_DIR="${ROOT_DIR}/logs"
 SERVER_IP=$(hostname -i)
 
 alert() {
   echo "\033[37;1;42m $@ \033[0m"
 }
 
-echo "" >> ~/.profile
-echo "export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n\$ '" >> ~/.profile
-echo "alias ls='ls -la --color=auto'" >> ~/.profile
-echo "alias grep='grep --color=auto'" >> ~/.profile
-echo "alias nginx-restart='/etc/init.d/nginx restart'" >> ~/.profile
-echo "alias php-restart='/etc/init.d/php-fcgi restart'" >> ~/.profile
-echo "alias mysql-restart='/etc/init.d/mysql restart'" >> ~/.profile
-echo "alias nginx-start='/etc/init.d/nginx start'" >> ~/.profile
-echo "alias php-start='/etc/init.d/php-fcgi start'" >> ~/.profile
-echo "alias mysql-start='/etc/init.d/mysql start'" >> ~/.profile
-echo "alias nginx-stop='/etc/init.d/nginx stop'" >> ~/.profile
-echo "alias php-stop='/etc/init.d/php-fcgi stop'" >> ~/.profile
-echo "alias mysql-stop='/etc/init.d/mysql stop'" >> ~/.profile
-echo "alias server-restart='nginx-restart; php-restart; mysql-restart;'" >> ~/.profile
-echo "alias server-start='nginx-start; php-start; mysql-start;'" >> ~/.profile
-echo "alias server-stop='nginx-stop; php-stop; mysql-stop;'" >> ~/.profile
-. ~/.profile
-alert 'Profile setted'
+echo "
+export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n\$ '
+alias ls='ls -la --color=auto'
+alias grep='grep --color=auto'
+alias nginx-restart='/etc/init.d/nginx restart'
+alias php-restart='/etc/init.d/php-fcgi restart'
+alias mysql-restart='/etc/init.d/mysql restart'
+alias nginx-start='/etc/init.d/nginx start'
+alias php-start='/etc/init.d/php-fcgi start'
+alias mysql-start='/etc/init.d/mysql start'
+alias nginx-stop='/etc/init.d/nginx stop'
+alias php-stop='/etc/init.d/php-fcgi stop'
+alias mysql-stop='/etc/init.d/mysql stop'
+alias server-restart='nginx-restart; php-restart; mysql-restart;'
+alias server-start='nginx-start; php-start; mysql-start;'
+alias server-stop='nginx-stop; php-stop; mysql-stop;'" >> ~/.profile
+alert 'Profile configured'
 
 apt-get update -y
 alert 'Updated'
@@ -32,7 +35,7 @@ alert 'Updated'
 apt-get upgrade -y
 alert 'Upgraded'
 
-apt-get install gcc openssl libssl-dev libpcre3-dev libbz2-dev vim mc -y
+apt-get install gcc openssl libssl-dev libpcre3-dev libbz2-dev vim mc git -y
 alert 'Common packages installed'
 
 wget -q -O - http://nginx.org/keys/nginx_signing.key | apt-key add -
@@ -44,37 +47,67 @@ chmod +x /etc/init.d/nginx && insserv nginx
 alert 'Nginx installed'
 
 mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.old
-mkdir $ROOT_DIR
-mkdir $ROOT_DIR/logs
+mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
+mkdir -p $ROOT_DIR
+mkdir -p $LOGS_DIR
 echo '<?php phpinfo(); ?>' > $ROOT_DIR/index.php
-echo "server {
-    listen       [::]:80;
-    server_name  localhost;
-    root         ${ROOT_DIR};
-    index        index.html index.htm index.php;
-    access_log   ${ROOT_DIR}/logs/access.log;
+echo "
+user          www-data;
+pid           /var/run/nginx.pid;
+worker_processes 4;
+
+events {
+    worker_connections 4096;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    access_log    off;
+    #access_log    ${LOGS_DIR}/access.log;
+    error_log     ${LOGS_DIR}/error.log;
+    sendfile      on;
+    tcp_nodelay   on;
+    gzip          on;
+    gzip_disable  \"MSIE [1-6]\.(?!.*SV1)\";
+
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+}
+" > /etc/nginx/nginx.conf
+echo "
+server {
+    listen        [::]:80;
+    server_name   localhost;
+    root          ${ROOT_DIR};
+    index         index.html index.htm index.php;
+
+    location = /favicon.ico {
+        access_log    off;
+        log_not_found off;
+    }
 
     location ~ \.php$ {
-        try_files \$uri = 404;
-        fastcgi_pass   unix:/tmp/php.socket;
-        fastcgi_index  index.php;
-        fastcgi_param  SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-        include fastcgi_params;
+        try_files     \$uri = 404;
+        fastcgi_pass  unix:/tmp/php.socket;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include       fastcgi_params;
     }
 }
 
 server {
-    listen       8080;
-    server_name  localhost;
-    root         /usr/share/phpmyadmin/;
-    index        index.html index.htm index.php;
-    access_log   ${ROOT_DIR}/logs/access.log;
+    listen        8080;
+    server_name   localhost;
+    root          /usr/share/phpmyadmin;
+    index         index.html index.htm index.php;
 
     location ~ \.php$ {
-       fastcgi_pass   unix:/tmp/php.socket;
-       fastcgi_index  index.php;
-       fastcgi_param  SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-       include        fastcgi_params;
+        try_files     \$uri = 404;
+        fastcgi_pass  unix:/tmp/php.socket;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include       fastcgi_params;
     }
 }
 " > /etc/nginx/sites-available/default
@@ -137,5 +170,10 @@ alert 'Mysql installed'
 
 apt-get install phpmyadmin -y
 alert 'PhpMyAdmin installed'
+
+/etc/init.d/nginx start
+/etc/init.d/php-fcgi start
+/etc/init.d/mysql start
+alert 'Server started'
 
 alert "Installation was successful! You can start the server with server-start. See what happened here - http://${SERVER_IP}/"
