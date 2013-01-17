@@ -168,6 +168,21 @@ apt-get install mysql-server mysql-client -y
 chmod +x /etc/init.d/mysql && insserv mysql
 alert 'Mysql installed'
 
+echo "
+[client]
+default-character-set = utf8
+character-set-server = utf8
+collation-server = utf8_general_ci
+character-set-client = utf8
+character-set-results = utf8
+character-set-connection = utf8
+[mysqld]
+character_set_server=utf8
+[server]
+skip-character-set-client-handshake
+" > /etc/mysql/conf.d/charset.cnf
+alert 'Mysql configured'
+
 apt-get install phpmyadmin -y
 alert 'PhpMyAdmin installed'
 
