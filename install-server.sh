@@ -4,7 +4,7 @@
 # nginx+php+mysql+phpmyadmin web server on Debian 6.
 
 ROOT_DIR='/var/www'
-LOGS_DIR="${ROOT_DIR}/logs"
+LOGS_DIR="${ROOT_DIR}/log"
 SERVER_IP=$(hostname -i)
 
 alert() {
