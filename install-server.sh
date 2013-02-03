@@ -176,7 +176,7 @@ character-set-client = utf8
 character-set-results = utf8
 character-set-connection = utf8
 [mysqld]
-character_set_server=utf8
+character-set-server = utf8
 [server]
 skip-character-set-client-handshake
 " > /etc/mysql/conf.d/charset.cnf
