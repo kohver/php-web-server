@@ -156,7 +156,7 @@ case "$1" in
       start
   ;;
     *)
-      echo "Usage: php-fastcgi {start|stop|restart}"
+      echo "Usage: php-fcgi {start|stop|restart}"
       exit 1
   ;;
 esac
