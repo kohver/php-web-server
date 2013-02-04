@@ -11,7 +11,8 @@ alert() {
   echo "\033[37;1;42m $@ \033[0m"
 }
 
-echo "export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n\$ '
+echo "
+export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n\$ '
 alias ls='ls -la --color=auto'
 alias grep='grep --color=auto'
 alias nginx-restart= '/etc/init.d/nginx    restart'
@@ -50,7 +51,7 @@ mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old
 mkdir -p $ROOT_DIR
 mkdir -p $LOGS_DIR
 echo '<?php phpinfo();' > $ROOT_DIR/index.php
-echo 'user          www-data;
+echo "user          www-data;
 pid           /var/run/nginx.pid;
 worker_processes 4;
 
@@ -67,12 +68,11 @@ http {
     sendfile      on;
     tcp_nodelay   on;
     gzip          on;
-    gzip_disable  "MSIE [1-6]\.(?!.*SV1)";
+    gzip_disable  \"MSIE [1-6]\.(?!.*SV1)\";
     include       ./conf.d/*.conf;
     include       ./sites-enabled/*;
-}
-' > /etc/nginx/nginx.conf
-echo 'server {
+}" > /etc/nginx/nginx.conf
+echo "server {
     listen        80;
     server_name   localhost;
     root          ${ROOT_DIR};
@@ -84,10 +84,10 @@ echo 'server {
     }
 
     location ~ \.php$ {
-        try_files     $uri = 404;
+        try_files     \$uri = 404;
         fastcgi_pass  unix:/tmp/php.socket;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include       fastcgi_params;
     }
 }
@@ -99,13 +99,13 @@ server {
     index         index.html index.htm index.php;
 
     location ~ \.php$ {
-        try_files     $uri = 404;
+        try_files     \$uri = 404;
         fastcgi_pass  unix:/tmp/php.socket;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include       fastcgi_params;
     }
-}' > /etc/nginx/sites-available/default
+}" > /etc/nginx/sites-available/default
 alert 'Nginx configured'
 
 apt-get install php5-cli php5-cgi php5-mysql php5-curl -y
