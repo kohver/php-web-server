@@ -3,8 +3,8 @@
 # Shell script for quick installation
 # nginx+php+mysql+phpmyadmin web server on Debian 6.
 
-ROOT_DIR='/var/www/root/'
-LOGS_DIR='/var/www/log/'
+ROOT_DIR='/var/www/root'
+LOGS_DIR='/var/www/log'
 SERVER_IP=$(hostname -i)
 
 alert() {
@@ -85,7 +85,7 @@ echo "server {
 
     location ~ \.php$ {
         try_files     \$uri = 404;
-        fastcgi_pass  unix:/tmp/php.socket;
+        fastcgi_pass  127.0.0.1:9000;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include       fastcgi_params;
@@ -100,7 +100,7 @@ server {
 
     location ~ \.php$ {
         try_files     \$uri = 404;
-        fastcgi_pass  unix:/tmp/php.socket;
+        fastcgi_pass  127.0.0.1:9000;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include       fastcgi_params;
