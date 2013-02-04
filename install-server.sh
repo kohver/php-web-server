@@ -15,18 +15,18 @@ echo "
 export PS1='\[\e]0;\w\a\]\n\[\e[32m\]\u@\h \[\e[33m\]\w\[\e[0m\]\n\$ '
 alias ls='ls -la --color=auto'
 alias grep='grep --color=auto'
-alias nginx-restart= '/etc/init.d/nginx    restart'
-alias php-restart=   '/etc/init.d/php-fcgi restart'
-alias mysql-restart= '/etc/init.d/mysql    restart'
-alias nginx-start=   '/etc/init.d/nginx    start'
-alias php-start=     '/etc/init.d/php-fcgi start'
-alias mysql-start=   '/etc/init.d/mysql    start'
-alias nginx-stop=    '/etc/init.d/nginx    stop'
-alias php-stop=      '/etc/init.d/php-fcgi stop'
-alias mysql-stop=    '/etc/init.d/mysql    stop'
+alias nginx-restart='/etc/init.d/nginx restart'
+alias php-restart='/etc/init.d/php-fcgi restart'
+alias mysql-restart='/etc/init.d/mysql restart'
+alias nginx-start='/etc/init.d/nginx start'
+alias php-start='/etc/init.d/php-fcgi start'
+alias mysql-start='/etc/init.d/mysql start'
+alias nginx-stop='/etc/init.d/nginx stop'
+alias php-stop='/etc/init.d/php-fcgi stop'
+alias mysql-stop='/etc/init.d/mysql stop'
 alias server-restart='nginx-restart; php-restart; mysql-restart;'
-alias server-start=  'nginx-start;   php-start;   mysql-start;'
-alias server-stop=   'nginx-stop;    php-stop;    mysql-stop;'" >> ~/.profile
+alias server-start='nginx-start; php-start; mysql-start;'
+alias server-stop='nginx-stop; php-stop; mysql-stop;'" >> ~/.profile
 alert 'Profile configured'
 
 echo 'deb http://ftp.fr.debian.org/debian testing main contrib
@@ -173,7 +173,6 @@ alert 'PhpMyAdmin installed'
 
 /etc/init.d/nginx start
 /etc/init.d/php-fcgi start
-/etc/init.d/mysql start
 alert 'Server started'
 
 alert "Installation was successful! See what happened here - http://${SERVER_IP}/"
