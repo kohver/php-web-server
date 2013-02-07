@@ -41,6 +41,14 @@ alert 'Upgraded'
 apt-get install vim mc git -y
 alert 'Common packages installed'
 
+git config --global color.status auto
+git config --global color.branch auto
+git config --global color.interactive auto
+git config --global color.diff auto
+git config --global color.status auto
+git config --global alias.lg "log --pretty=format:'%h was %an, %ar, message: %s' --graph"
+alert 'Git configured'
+
 apt-get update
 apt-get install nginx -y
 chmod +x /etc/init.d/nginx && insserv nginx
