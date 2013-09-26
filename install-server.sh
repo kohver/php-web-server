@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Shell script for quick installation
-# nginx+php+mysql+phpmyadmin web server on Debian 6.
+# nginx+php+mysql+phpmyadmin web server on Debian 6/7.
 
 ROOT_DIR='/var/www/root'
 LOGS_DIR='/var/www/log'
